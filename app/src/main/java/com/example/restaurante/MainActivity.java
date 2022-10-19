@@ -1,8 +1,10 @@
 package com.example.restaurante;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
         Button search= findViewById(R.id.btnsearch);
         Button update = findViewById(R.id.btnupdate);
         Button delete = findViewById(R.id.btndelete);
-
-
 
 
 
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onSuccess(Void aVoid) {
                                 //Log.d("cliente", "DocumentSnapshot successfully written!");
                                 Toast.makeText(MainActivity.this,"Cliente actualizado correctmente...",Toast.LENGTH_SHORT).show();
+
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -117,25 +118,54 @@ public class MainActivity extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                db.collection("customer").document(idCustomer)
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder.setMessage("Está seguro de eliminar el cliente con id "+iden.getText().toString()+"?");
+                alertDialogBuilder.setPositiveButton("Sí",
+                        new DialogInterface.OnClickListener() {
+
                             @Override
-                            public void onSuccess(Void aVoid) {
-                                //Log.d("cliente", "DocumentSnapshot successfully deleted!");
-                                Toast.makeText(MainActivity.this,"Cliente borrado correctamente...",Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w("cliente", "Error deleting document", e);
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                db.collection("customer").document(idCustomer)
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(getApplicationContext(),"Cliente eliminado correctamente...",Toast.LENGTH_SHORT).show();
+                                            iden.setText("");
+                                            fullname.setText("");
+                                            email.setText("");
+                                            password.setText("");
+
+                                            iden.requestFocus();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w("cliente", "Error deleting document", e);
+                                        }
+                                    });
                             }
                         });
+
+                alertDialogBuilder.setNegativeButton("No",
+                        new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+
+                            }
+                        });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
+
+
         });
 
 
+//
 
 
     }
